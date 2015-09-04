@@ -2,8 +2,10 @@
 apply plugin: 'java'
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 	maven { url 'https://oss.jfrog.org/libs-snapshot' }  // RxNetty 0.5.x snapshots
+	maven { url 'https://repo.spring.io/libs-snapshot' }  // Reactor 2.1 snapshots
 }
 
 configure(allprojects) { project ->
@@ -21,9 +23,7 @@ dependencies {
 	compile "io.reactivex:rxjava-reactive-streams:1.0.1"
 	compile "io.reactivex:rxnetty:0.5.0-SNAPSHOT"
 
-	compile "io.projectreactor:reactor-core:2.0.4.RELEASE"
-	compile "io.projectreactor:reactor-stream:2.0.4.RELEASE"
-	compile "io.projectreactor:reactor-net:2.0.4.RELEASE"
+	compile "io.projectreactor:reactor-net:2.1.0.BUILD-SNAPSHOT"
 
 	compile "org.slf4j:slf4j-api:1.7.6"
 	compile "ch.qos.logback:logback-classic:1.1.2"
