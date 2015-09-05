@@ -25,7 +25,7 @@ public class HttpReactorScatterGather {
 			backend(8082);
 			frontend(8080, 8081, 8082);
 		} else {
-			HttpRatpackHeadFirst.client(8080);
+			HttpReactorBackpressure.client(8080);
 		}
 		System.in.read();
 	}

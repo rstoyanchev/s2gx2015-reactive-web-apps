@@ -25,6 +25,10 @@ dependencies {
 
 	compile "io.projectreactor:reactor-net:2.1.0.BUILD-SNAPSHOT"
 
+
+	compile "io.ratpack:ratpack-core:1.0.0-rc-2"
+
+
 	compile "org.slf4j:slf4j-api:1.7.6"
 	compile "ch.qos.logback:logback-classic:1.1.2"
 }
