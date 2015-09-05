@@ -7,8 +7,6 @@ import ratpack.server.BaseDir;
 import ratpack.server.RatpackServer;
 import reactor.rx.Streams;
 
-import java.nio.file.Path;
-
 public class HttpRatpackHeadFirst {
 
 	static final Logger logger = LoggerFactory.getLogger(HttpRatpackHeadFirst.class);
@@ -23,19 +21,23 @@ public class HttpRatpackHeadFirst {
 			/* */
 			.handlers(chain -> chain
 				/* */
-				.get("/", ctx ->
-					// and now render the HTTP response
-					ctx.render(ResponseChunks.stringChunks(Streams.just("Hello World")))
-				)
 				.prefix("rsvp", c ->
+					/* */
 					c.files(f ->
 						f.dir("rsvp").indexFiles("rsvp_sample.html")
 					)
 				)
+				/* */
 				.prefix("rxjs", c ->
+					/* */
 					c.files(f ->
-						f.dir("rxjs").indexFiles("rsvp_sample.html")
+						f.dir("rxjs").indexFiles("rxjs_sample.html")
 					)
+				)
+				/* */
+				.all(ctx ->
+					// and now render the HTTP response
+					ctx.render(ResponseChunks.stringChunks(Streams.just("Hello World")))
 				)
 			)
 		)
