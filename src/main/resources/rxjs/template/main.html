@@ -1,0 +1,14 @@
+<div>
+    <h2>Activity Feed</h2>
+    <ul>
+        <span>Messages : {{count}}</span>
+        <li ng-repeat="activity in activities">
+                    <span class="text">
+                        <span class="date">{{::activity.time}}</span> :
+                        <span class="desc">
+                            {{::activity.text}}
+                        </span>
+                    </span>
+        </li>
+    </ul>
+</div>

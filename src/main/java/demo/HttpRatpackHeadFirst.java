@@ -7,6 +7,8 @@ import ratpack.server.BaseDir;
 import ratpack.server.RatpackServer;
 import reactor.rx.Streams;
 
+import static ratpack.websocket.WebSockets.websocketBroadcast;
+
 public class HttpRatpackHeadFirst {
 
 	static final Logger logger = LoggerFactory.getLogger(HttpRatpackHeadFirst.class);
@@ -32,6 +34,15 @@ public class HttpRatpackHeadFirst {
 					/* */
 					c.files(f ->
 						f.dir("rxjs").indexFiles("rxjs_sample.html")
+					)
+				)
+				/* */
+				.get("stream", c ->
+					websocketBroadcast(c, Streams.
+						period(1)
+						.map(Object::toString)
+						.map(data -> System.currentTimeMillis()+","+data)
+					    .map(data -> "{ \"data\" : \"" + data + "\" }")
 					)
 				)
 				/* */
