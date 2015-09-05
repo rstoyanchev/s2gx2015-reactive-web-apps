@@ -35,30 +35,40 @@ public class HttpAkkaStreamHeadFirst {
 	}
 
 	public static void server(int port, ActorSystem system) {
+		/* */
 		final Materializer materializer = ActorMaterializer.create(system);
 
-		Source<IncomingConnection, Future<ServerBinding>> serverSource =
-		  Http.get(system).bind("localhost", port, materializer);
-
-		final Function<HttpRequest, HttpResponse> requestHandler =
-		  request -> {
-			  if (request.method() == HttpMethods.GET && request.getUri().path().equals("/")) {
-				  return HttpResponse.create().withEntity(MediaTypes.TEXT_HTML.toContentType(), "Hello world!");
-			  }
-
-			  return HttpResponse.create().withStatus(404);
-		  };
-
-		serverSource
+		Http
+		  /* */
+		  .get(system)
+		  /* */
+		  .bind("localhost", port, materializer)
+		  /* */
 		  .to(Sink
+		    /* */
 			.foreach(
 			  connection ->
-				// this is equivalent to
+			    /* */
 				connection.handleWith(Flow
+					/* */
 					.of(HttpRequest.class)
-					.map(requestHandler),
+					/* */
+					.map(request -> {
+						/* */
+						if (request.method() == HttpMethods.GET
+						  && request.getUri().path().equals("/")) {
+							/* */
+							return HttpResponse
+							  .create()
+							  .withEntity(MediaTypes.TEXT_HTML.toContentType(), "Hello world!");
+						}
+						/* */
+						return HttpResponse.create().withStatus(404);
+
+					}),
 				  materializer)
 			))
+		  /* */
 		  .run(materializer);
 	}
 
