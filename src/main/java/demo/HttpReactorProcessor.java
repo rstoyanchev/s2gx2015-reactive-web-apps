@@ -1,26 +1,30 @@
 package demo;
 
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.Processors;
 import reactor.io.codec.StandardCodecs;
 import reactor.io.net.http.HttpClient;
 import reactor.io.net.http.HttpServer;
+import reactor.rx.Stream;
 import reactor.rx.Streams;
 
-import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
-import static reactor.io.net.NetStreams.*;
+import static reactor.io.net.NetStreams.httpClient;
+import static reactor.io.net.NetStreams.httpServer;
 
-public class HttpReactorHeadFirst {
+public class HttpReactorProcessor {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpReactorHeadFirst.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpReactorProcessor.class);
 
 	public static void main(String... args) throws Exception {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {
 			server(8080);
 		} else {
-			client(8080);
+			for (int i = 0; i < 4; i++) {
+				client(8080, i);
+			}
 		}
 		System.in.read();
 	}
@@ -30,17 +34,29 @@ public class HttpReactorHeadFirst {
 		HttpServer<String, String> server =
 		  httpServer(spec -> spec.codec(StandardCodecs.STRING_CODEC).listen(port));
 
+		Stream<String> stream = Streams
+		  /**/
+		  .period(300, TimeUnit.MILLISECONDS)
+		  /**/
+		  .log("server")
+		  /**/
+		  .map(Object::toString)
+		  /**/
+		  .process(Processors.work())
+		  /**/
+		  .capacity(1);
+
 		server
 		  /* Add a HTTP get Handler on root */
 		  .get("/", channel ->
 			/* Write and flush the reply with a single-element stream*/
-			  channel.writeWith(Streams.just("Hello World!"))
+			  channel.writeWith(stream)
 		  )
 		  /* Start listening */
 		  .start();
 	}
 
-	public static void client(int port) {
+	public static void client(int port, int index) {
 		/* Create HTTP client and Assign a Byte <=> String codec, the address and the port */
 		HttpClient<String, String> client =
 		  httpClient(spec -> spec.codec(StandardCodecs.STRING_CODEC).connect("127.0.0.1", port));
@@ -49,31 +65,23 @@ public class HttpReactorHeadFirst {
 		  /* Start a request to Connect on '/' */
 		  .get("/")
 		  /* Read channel headers */
-		  .onSuccess(channel -> logger.info("headers: " + channel.responseHeaders().entries()) )
+		  .onSuccess(channel -> logger.info("headers: " + channel.responseHeaders().entries()))
 		  /* Consume channel container */
 		  .onSuccess(channel ->
 			  /* Consume decoded chunks */
-			  channel.consume(logger::info)
+			  channel.consume(data -> logger.info(tab(index) + data), error -> logger.error("error ",error) )
 		  )
 		  /* If connection failed, consume error */
 		  .onError(Throwable::printStackTrace);
 	}
 
 
-
-	public static void blockingClient(int port) {
-		/* Prepare a new HTTP client */
-		HttpClient<String, String> client =
-		  httpClient(spec -> spec.codec(StandardCodecs.STRING_CODEC).connect("127.0.0.1", port));
-
-		client
-		  /* Prepare an HTTP GET as an Observable which will connect on subscribe */
-		  .get("/")
-		  /* Flatten first response body into the returned Stream  */
-		  .flatMap(channel -> channel)
-		  /* Consume the decoded chunk */
-		  .onSuccess(logger::info)
-		  /* Block and return chunk */
-		  .poll();
+	private static String tab(int index) {
+		String tabs = "";
+		for (int i = 0; i < index; i++) {
+			tabs += "\t";
+		}
+		return tabs + "[" + index + "]";
 	}
+
 }

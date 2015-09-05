@@ -9,9 +9,9 @@ import rx.Observable;
 
 import java.nio.charset.Charset;
 
-public class HttpRxNettyHeadFirst {
+public class HttpRxNettyScatterGather {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpRxNettyHeadFirst.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpRxNettyScatterGather.class);
 
 	public static void main(String... args) throws Exception {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {
@@ -44,25 +44,10 @@ public class HttpRxNettyHeadFirst {
 			  /* Response body can be consumed separately */
 			  resp.getContent().subscribe(
 			    /* Consume each chunk */
-				buffer -> logger.info(buffer.toString(Charset.defaultCharset())),
+			    buffer -> logger.info(buffer.toString(Charset.defaultCharset())),
 			    /* Implement an error handler */
-				Throwable::printStackTrace
+			    Throwable::printStackTrace
 			  )
 		  );
-	}
-
-	public static void blockingClient(int port) {
-		/* Prepare a new HTTP client */
-		HttpClient.newClient("127.0.0.1", port)
-		  /* Prepare an HTTP GET as an Observable which will connect on subscribe */
-		  .createGet("/")
-		  /* Start the client and flatten the body into the returned Observable  */
-		  .flatMap(HttpClientResponse::getContent)
-		  /* Transform the chunk buffers to String */
-		  .map(buffer -> buffer.toString(Charset.defaultCharset()))
-		  /* Block the returned body chunks */
-		  .toBlocking()
-		  /* Consume the chunks */
-		  .forEach(logger::info);
 	}
 }
