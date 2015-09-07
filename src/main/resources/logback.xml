@@ -24,7 +24,7 @@
         </encoder>
     </appender>
 
-    <!--<logger name="reactor.io.net.impl.netty.http.NettyHttpClient" level="OFF"/>-->
+    <!--<logger name="reactor.io.net" level="DEBUG"/>-->
     <!--<logger name="reactor.io.net.impl.netty.http.NettyHttpServer" level="OFF"/>-->
 
     <root level="info">

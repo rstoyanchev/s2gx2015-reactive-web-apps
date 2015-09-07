@@ -49,16 +49,15 @@ public class HttpReactorHeadFirst {
 		  /* Start a request to Connect on '/' */
 		  .get("/")
 		  /* Read channel headers */
-		  .onSuccess(channel -> logger.info("headers: " + channel.responseHeaders().entries()) )
+		  .observe(channel -> logger.info("headers: " + channel.responseHeaders().entries()))
 		  /* Consume channel container */
-		  .onSuccess(channel ->
+		  .consume(
 			  /* Consume decoded chunks */
-			  channel.consume(logger::info)
-		  )
-		  /* If connection failed, consume error */
-		  .onError(Throwable::printStackTrace);
+		    channel -> channel.consume(logger::info),
+		     /* If connection failed, consume error */
+			Throwable::printStackTrace
+		  );
 	}
-
 
 
 	public static void blockingClient(int port) {
@@ -72,8 +71,9 @@ public class HttpReactorHeadFirst {
 		  /* Flatten first response body into the returned Stream  */
 		  .flatMap(channel -> channel)
 		  /* Consume the decoded chunk */
-		  .onSuccess(logger::info)
+		  .observe(logger::info)
 		  /* Block and return chunk */
+		  .next()
 		  .poll();
 	}
 }

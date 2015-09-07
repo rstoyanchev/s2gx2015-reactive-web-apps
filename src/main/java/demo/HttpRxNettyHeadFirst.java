@@ -17,6 +17,7 @@ public class HttpRxNettyHeadFirst {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {
 			server(8080);
 		} else {
+			// blockingClient(8080);
 			client(8080);
 		}
 		System.in.read();

@@ -46,24 +46,23 @@ public class HttpAkkaStreamHeadFirst {
 		  /* */
 		  .to(Sink
 		    /* */
-			.foreach(
-			  connection ->
+			.foreach( connection ->
 			    /* */
-				connection.handleWith(Flow
+				connection.handleWith(
 					/* */
-					.of(HttpRequest.class)
+				    Flow.of(HttpRequest.class)
 					/* */
 					.map(request -> {
 						/* */
 						if (request.method() == HttpMethods.GET
 						  && request.getUri().path().equals("/")) {
 							/* */
-							return HttpResponse
-							  .create()
+							return HttpResponse.create()
 							  .withEntity(MediaTypes.TEXT_HTML.toContentType(), "Hello world!");
 						}
 						/* */
-						return HttpResponse.create().withStatus(404);
+						return HttpResponse.create()
+						  .withStatus(404);
 
 					}),
 				  materializer)

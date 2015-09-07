@@ -33,12 +33,12 @@ public class HttpReactorBackpressure {
 		  .get("/", channel ->
 			/* Write and flush the reply with a single-element stream*/
 			  channel.writeWith(
-			    Streams
-			      .range(1, 1000)
-			      .map(Object::toString)
-			      .log("server")
-			      .observe(HttpReactorBackpressure::simulateLatency)
-			      .capacity(1)
+				Streams
+				  .range(1, 1000)
+				  .map(Object::toString)
+				  .log("server")
+				  .observe(HttpReactorBackpressure::simulateLatency)
+				  .capacity(1)
 			  )
 		  )
 		  /* Start listening */
@@ -54,21 +54,24 @@ public class HttpReactorBackpressure {
 		  /* */
 		  .get("/")
 		  /* Consume response */
-		  .onSuccess(channel ->
+		  .consume(channel ->
 			  /* */
 			  channel
 			    /* */
-			    .capacity(1)
+				.capacity(1)
+				/* */
+				.log("client")
 			    /* */
-			    .log("client")
-			    /* */
-			    .consume(data -> {
-				    simulateLatency();
-				    logger.info(data);
-			    })
-		  )
-		  /* */
-		  .onError(Throwable::printStackTrace);
+				.consume(data -> {
+					simulateLatency();
+					logger.info(data);
+				})
+			,
+		    /* */
+			Throwable::printStackTrace,
+		    v -> logger.info("onComplete")
+		  );
+
 	}
 
 	private static void simulateLatency() {
