@@ -1,22 +1,25 @@
-package demo;
+package demo.flush;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.Processors;
+import reactor.io.IO;
+import reactor.io.buffer.Buffer;
 import reactor.io.codec.StandardCodecs;
 import reactor.io.net.http.HttpClient;
 import reactor.io.net.http.HttpServer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 
-import java.util.concurrent.TimeUnit;
 
 import static reactor.io.net.NetStreams.httpClient;
 import static reactor.io.net.NetStreams.httpServer;
 
-public class HttpReactorProcessor {
+public class HttpReactorFlush {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpReactorProcessor.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpReactorFlush.class);
+
+	static final String musicFilepath = "/Users/smaldini/Desktop/music.mp3";
 
 	public static void main(String... args) throws Exception {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {
@@ -31,26 +34,33 @@ public class HttpReactorProcessor {
 
 	public static void server(int port) {
 		/* Create HTTP server and Assign a Byte <=> String codec and the port */
-		HttpServer<String, String> server =
-		  httpServer(spec -> spec.codec(StandardCodecs.STRING_CODEC).listen(port));
+		HttpServer<Buffer, Buffer> server = httpServer(port);
 
-		Stream<String> stream = Streams
+		Stream<Buffer> stream = Streams.wrap(
 		  /**/
-		  .period(300, TimeUnit.MILLISECONDS)
+		  IO.readFile(musicFilepath)
+		)
 		  /**/
-		  .log("server")
-		  /**/
-		  .map(Object::toString)
-		  /**/
-		  .process(Processors.work())
-		  /**/
-		  .capacity(1);
+		  .log("broadcast")
+		  .process(Processors.async("radio", 16, false))
+		  .map(Buffer::duplicate)
+		  .capacity(16)
+		  ;
 
 		server
 		  /* Add a HTTP get Handler on root */
 		  .get("/", channel ->
-			/* Write and flush the reply with a single-element stream*/
-			  channel.writeWith(stream)
+			{
+				channel
+				/* */
+				  .responseHeader("Content-Type", "audio/mp3");
+
+				if(channel.headers().get("Range") != null) {
+					return channel.writeWith(stream);
+				}else{
+					return Streams.empty();
+				}
+			}
 		  )
 		  /* Start listening */
 		  .start();

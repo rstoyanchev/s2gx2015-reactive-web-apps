@@ -1,25 +1,22 @@
-package demo;
+package demo.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.Processors;
-import reactor.io.IO;
-import reactor.io.buffer.Buffer;
 import reactor.io.codec.StandardCodecs;
 import reactor.io.net.http.HttpClient;
 import reactor.io.net.http.HttpServer;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
 
+import java.util.concurrent.TimeUnit;
 
 import static reactor.io.net.NetStreams.httpClient;
 import static reactor.io.net.NetStreams.httpServer;
 
-public class HttpReactorFlush {
+public class HttpReactorProcessor {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpReactorFlush.class);
-
-	static final String musicFilepath = "/Users/smaldini/Desktop/music.mp3";
+	static final Logger logger = LoggerFactory.getLogger(HttpReactorProcessor.class);
 
 	public static void main(String... args) throws Exception {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {
@@ -34,27 +31,26 @@ public class HttpReactorFlush {
 
 	public static void server(int port) {
 		/* Create HTTP server and Assign a Byte <=> String codec and the port */
-		HttpServer<Buffer, Buffer> server = httpServer(port);
+		HttpServer<String, String> server =
+		  httpServer(spec -> spec.codec(StandardCodecs.STRING_CODEC).listen(port));
 
-		Stream<Buffer> stream = Streams.wrap(
+		Stream<String> stream = Streams
 		  /**/
-		  IO.readFile(musicFilepath)
-		)
+		  .period(300, TimeUnit.MILLISECONDS)
 		  /**/
-		  .process(Processors.async())
+		  .log("server")
 		  /**/
-		  .keepAlive()
+		  .map(Object::toString)
 		  /**/
-		  .capacity(32);
+		  .process(Processors.work())
+		  /**/
+		  .capacity(1);
 
 		server
 		  /* Add a HTTP get Handler on root */
 		  .get("/", channel ->
-			  channel
-			    /* */
-			    .responseHeader("Content-Type", "audio/mp3")
-				/* Write and flush the reply with a single-element stream*/
-				.writeWith(stream)
+			/* Write and flush the reply with a single-element stream*/
+			  channel.writeWith(stream)
 		  )
 		  /* Start listening */
 		  .start();
@@ -73,9 +69,9 @@ public class HttpReactorFlush {
 		  /* Consume channel container */
 		  .consume(channel ->
 			  /* Consume decoded chunks */
-			  channel.consume(data -> logger.info(tab(index) + data), error -> logger.error("error ",error) ),
+			  channel.consume(data -> logger.info(tab(index) + data), error -> logger.error("error ", error)),
 		    /* If connection failed, consume error */
-	        Throwable::printStackTrace
+			Throwable::printStackTrace
 		  );
 	}
 

@@ -1,4 +1,4 @@
-package demo;
+package demo.backpressure;
 
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClient;
@@ -10,9 +10,9 @@ import rx.Subscriber;
 
 import java.nio.charset.Charset;
 
-public class HttpRxNettyFlush {
+public class HttpRxNettyBackpressure {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpRxNettyFlush.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpRxNettyBackpressure.class);
 
 	public static void main(String... args) throws Exception {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {

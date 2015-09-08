@@ -1,14 +1,11 @@
-package demo;
+package demo.headfirst;
 
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.io.codec.StandardCodecs;
 import reactor.io.net.http.HttpClient;
 import reactor.io.net.http.HttpServer;
 import reactor.rx.Streams;
-
-import java.nio.charset.Charset;
 
 import static reactor.io.net.NetStreams.*;
 

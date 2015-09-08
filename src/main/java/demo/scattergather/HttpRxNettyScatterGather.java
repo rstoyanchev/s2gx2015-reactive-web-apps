@@ -1,13 +1,10 @@
-package demo;
+package demo.scattergather;
 
-import io.reactivex.netty.protocol.http.client.HttpClient;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import demo.headfirst.HttpReactorHeadFirst;
 import io.reactivex.netty.protocol.http.server.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-
-import java.nio.charset.Charset;
 
 public class HttpRxNettyScatterGather {
 
