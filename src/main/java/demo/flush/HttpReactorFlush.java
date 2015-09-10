@@ -38,13 +38,13 @@ public class HttpReactorFlush {
 
 		Stream<Buffer> stream = Streams.wrap(
 		  /**/
-		  IO.readFile(musicFilepath)
+		  IO.readFile(musicFilepath, 1000)
 		)
 		  /**/
-		  .log("broadcast")
-		  .process(Processors.async("radio", 16, false))
+		  .process(Processors.async("radio", 256, false))
 		  .map(Buffer::duplicate)
-		  .capacity(16)
+		  .log("broadcast")
+		  .capacity(1)
 		  ;
 
 		server

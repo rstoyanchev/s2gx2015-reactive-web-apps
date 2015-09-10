@@ -1,13 +1,22 @@
 package demo.flush;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledDirectByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClient;
 import io.reactivex.netty.protocol.http.server.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.Processors;
+import reactor.io.IO;
+import reactor.rx.Stream;
+import reactor.rx.Streams;
 import rx.Observable;
+import rx.RxReactiveStreams;
 import rx.Subscriber;
+import rx.subjects.AsyncSubject;
 
+import java.nio.Buffer;
 import java.nio.charset.Charset;
 
 public class HttpRxNettyFlush {
@@ -24,18 +33,35 @@ public class HttpRxNettyFlush {
 	}
 
 	public static void server(int port) {
+
+
+		Stream<ByteBuf> stream = Streams.wrap(
+		  /**/
+		  IO.readFile(HttpReactorFlush.musicFilepath, 1000)
+		)
+		  /**/
+		  .process(Processors.async("radio", 256, false))
+		  .map(reactor.io.buffer.Buffer::duplicate)
+		  .map(buffer -> Unpooled.wrappedBuffer(buffer.byteBuffer()));
+		  ;
+
 		/*Starts a new HTTP server on 8080.*/
 		HttpServer.newServer(port)
+
 		 /*Starts the server with a request handler.*/
-		  .start((req, resp) ->
+
+		  .start((req, resp) -> {
+
               /*Write N content chunk as string "Hello World!"*/
-			  resp.writeString(Observable
-				  .range(1, 100000)
-				  .doOnNext(n -> logger.info("" + n))
-				 // .doOnNext(HttpRxNettyBackpressure::simulateLatency)
-				  .map(Object::toString)
-			    , chunk -> true
-			  )
+			    resp.addHeader("Content-Type", "audio/mp3");
+			    if (req.containsHeader("Range")) {
+				    return resp.write(RxReactiveStreams.toObservable(stream)
+				      , chunk -> true
+				    );
+			    }else{
+				    return Observable.empty();
+			    }
+		    }
 		  );
 	}
 

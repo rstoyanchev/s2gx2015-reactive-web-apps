@@ -41,6 +41,7 @@ public class HttpReactorScatterGather {
 			    /**/
 			    merge(
 			      httpClient().get("http://localhost:" + backendPort1 + "/"),
+
 			      httpClient().get("http://localhost:" + backendPort2 + "/")
 			    )
 				  /**/

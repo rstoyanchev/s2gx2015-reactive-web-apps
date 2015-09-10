@@ -23,13 +23,6 @@ public class HttpRatpackHeadFirst {
 			/* */
 			.handlers(chain -> chain
 				/* */
-				.prefix("rsvp", c ->
-					/* */
-					c.files(f ->
-						f.dir("rsvp").indexFiles("rsvp_sample.html")
-					)
-				)
-				/* */
 				.prefix("rxjs", c ->
 					/* */
 					c.files(f ->

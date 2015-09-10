@@ -64,14 +64,12 @@ public class HttpReactorProcessor {
 		client
 		  /* Start a request to Connect on '/' */
 		  .get("/")
-		  /* Read channel headers */
-		  .observe(channel -> logger.info("headers: " + channel.responseHeaders().entries()))
 		  /* Consume channel container */
 		  .consume(channel ->
 			  /* Consume decoded chunks */
-			  channel.consume(data -> logger.info(tab(index) + data), error -> logger.error("error ", error)),
-		    /* If connection failed, consume error */
-			Throwable::printStackTrace
+			  channel.consume(
+			    data -> logger.info(tab(index) + data),
+			    error -> logger.error("error ", error))
 		  );
 	}
 
@@ -79,7 +77,7 @@ public class HttpReactorProcessor {
 	private static String tab(int index) {
 		String tabs = "";
 		for (int i = 0; i < index; i++) {
-			tabs += "\t";
+			tabs += "\t\t\t\t";
 		}
 		return tabs + "[" + index + "]";
 	}
