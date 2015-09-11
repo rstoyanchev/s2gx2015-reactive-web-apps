@@ -1,4 +1,4 @@
-package demo.headfirst;
+package demo.wip;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +9,9 @@ import reactor.rx.Streams;
 
 import static ratpack.websocket.WebSockets.websocketBroadcast;
 
-public class HttpRatpackHeadFirst {
+public class HttpRatpackDemo {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpRatpackHeadFirst.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpRatpackDemo.class);
 
 	public static void main(String... args) throws Exception {
 		//A Ratpack http server

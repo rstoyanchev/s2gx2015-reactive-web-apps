@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 public class HttpRxNettyHeadFirst {
 
@@ -17,7 +18,6 @@ public class HttpRxNettyHeadFirst {
 		if (args.length == 0 || args[0].equalsIgnoreCase("server")) {
 			server(8080);
 		} else {
-			// blockingClient(8080);
 			client(8080);
 		}
 		System.in.read();
@@ -28,8 +28,17 @@ public class HttpRxNettyHeadFirst {
 		HttpServer.newServer(port)
 	     /* Starts the server with a request handler. */
 		  .start((req, resp) ->
-              /* Write a single content chunk as string "Hello World!" */
-			  resp.writeString(Observable.just("Hello World!"))
+              /* Write the reply with an increment every 1 second, flush every 3 items */
+			  resp.writeString(
+			    Observable.interval(1, TimeUnit.SECONDS).map(Object::toString),
+			    item -> Long.parseLong(item) % 3 == 0
+
+			    //Flush only on Complete (never)
+			    //Observable.interval(1, TimeUnit.SECONDS).map(Object::toString)
+
+			    //Flush only on Complete (after 10)
+			    //Observable.interval(1, TimeUnit.SECONDS).take(10).map(Object::toString)
+			  )
 		  );
 	}
 
@@ -38,32 +47,13 @@ public class HttpRxNettyHeadFirst {
 		HttpClient.newClient("127.0.0.1", port)
 		  /* Prepare an HTTP GET as an Observable which will connect on subscribe */
 		  .createGet("/")
-		  /* The Observable emits a Response object and complete */
-		  .doOnNext(resp -> logger.info(resp.toString()))
 		  /* Start the client and consume the Response 'container' */
 		  .subscribe(resp ->
 			  /* Response body can be consumed separately */
 			  resp.getContent().subscribe(
 			    /* Consume each chunk */
-				buffer -> logger.info(buffer.toString(Charset.defaultCharset())),
-			    /* Implement an error handler */
-				Throwable::printStackTrace
+			    buffer -> logger.info(buffer.toString(Charset.defaultCharset()))
 			  )
 		  );
-	}
-
-	public static void blockingClient(int port) {
-		/* Prepare a new HTTP client */
-		HttpClient.newClient("127.0.0.1", port)
-		  /* Prepare an HTTP GET as an Observable which will connect on subscribe */
-		  .createGet("/")
-		  /* Start the client and flatten the body into the returned Observable  */
-		  .flatMap(HttpClientResponse::getContent)
-		  /* Transform the chunk buffers to String */
-		  .map(buffer -> buffer.toString(Charset.defaultCharset()))
-		  /* Block the returned body chunks */
-		  .toBlocking()
-		  /* Consume the chunks */
-		  .forEach(logger::info);
 	}
 }

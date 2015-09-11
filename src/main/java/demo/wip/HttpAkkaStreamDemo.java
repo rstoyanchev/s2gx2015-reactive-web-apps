@@ -1,4 +1,4 @@
-package demo.headfirst;
+package demo.wip;
 
 import akka.actor.ActorSystem;
 import akka.http.javadsl.Http;
@@ -13,9 +13,9 @@ import akka.stream.javadsl.Sink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpAkkaStreamHeadFirst {
+public class HttpAkkaStreamDemo {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpAkkaStreamHeadFirst.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpAkkaStreamDemo.class);
 
 	public static void main(String... args) throws Exception {
 		ActorSystem system = ActorSystem.create();

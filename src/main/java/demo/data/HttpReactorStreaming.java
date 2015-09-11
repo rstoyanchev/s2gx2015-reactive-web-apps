@@ -1,4 +1,4 @@
-package demo.flush;
+package demo.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ import reactor.rx.Streams;
 import static reactor.io.net.NetStreams.httpClient;
 import static reactor.io.net.NetStreams.httpServer;
 
-public class HttpReactorFlush {
+public class HttpReactorStreaming {
 
-	static final Logger logger = LoggerFactory.getLogger(HttpReactorFlush.class);
+	static final Logger logger = LoggerFactory.getLogger(HttpReactorStreaming.class);
 
 	static final String musicFilepath = "/Users/smaldini/Desktop/music.mp3";
 
@@ -81,7 +81,7 @@ public class HttpReactorFlush {
 			  /* Consume decoded chunks */
 			  channel.consume(data -> logger.info(tab(index) + data), error -> logger.error("error ", error)),
 		    /* If connection failed, consume error */
-			Throwable::printStackTrace
+		    Throwable::printStackTrace
 		  );
 	}
 
