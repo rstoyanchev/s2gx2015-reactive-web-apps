@@ -17,7 +17,7 @@ public class DummyDataRepository {
 	}
 
 	public Stream<byte[]> findAll(){
-		return Streams.range(1, Long.MAX_VALUE).map( n -> DUMMY_DATA);
+		return Streams.range(1, Integer.MAX_VALUE).map( n -> DUMMY_DATA);
 	}
 
 }

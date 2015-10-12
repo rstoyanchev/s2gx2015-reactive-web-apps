@@ -42,7 +42,7 @@ public class HttpReactorProcessor {
 		  /**/
 		  .map(Object::toString)
 		  /**/
-		  .process(Processors.work())
+		  .process(Processors.queue())
 		  /**/
 		  .capacity(1);
 

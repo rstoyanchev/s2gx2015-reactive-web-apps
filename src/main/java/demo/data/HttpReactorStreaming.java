@@ -41,7 +41,7 @@ public class HttpReactorStreaming {
 		  IO.readFile(musicFilepath, 1000)
 		)
 		  /**/
-		  .process(Processors.async("radio", 256, false))
+		  .process(Processors.topic("radio", 256, false))
 		  .map(Buffer::duplicate)
 		  .log("broadcast")
 		  .capacity(1)
@@ -58,7 +58,7 @@ public class HttpReactorStreaming {
 				if(channel.headers().get("Range") != null) {
 					return channel.writeWith(stream);
 				}else{
-					return Streams.empty();
+					return channel.writeWith(Streams.just(Buffer.wrap("")));
 				}
 			}
 		  )
