@@ -1,15 +1,15 @@
 package demo.data;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.Processors;
-import reactor.io.codec.StandardCodecs;
-import reactor.io.net.http.HttpClient;
-import reactor.io.net.http.HttpServer;
+import reactor.io.net.http.ReactorHttpClient;
+import reactor.io.net.http.ReactorHttpServer;
+import reactor.io.net.preprocessor.CodecPreprocessor;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
-
-import java.util.concurrent.TimeUnit;
 
 import static reactor.io.net.NetStreams.httpClient;
 import static reactor.io.net.NetStreams.httpServer;
@@ -31,8 +31,9 @@ public class HttpReactorProcessor {
 
 	public static void server(int port) {
 		/* Create HTTP server and Assign a Byte <=> String codec and the port */
-		HttpServer<String, String> server =
-		  httpServer(spec -> spec.codec(StandardCodecs.STRING_CODEC).listen(port));
+		ReactorHttpServer<String, String> server =
+		  httpServer(spec -> spec.httpProcessor(CodecPreprocessor.string())
+		                         .listen(port));
 
 		Stream<String> stream = Streams
 		  /**/
@@ -58,8 +59,9 @@ public class HttpReactorProcessor {
 
 	public static void client(int port, int index) {
 		/* Create HTTP client and Assign a Byte <=> String codec, the address and the port */
-		HttpClient<String, String> client =
-		  httpClient(spec -> spec.codec(StandardCodecs.STRING_CODEC).connect("127.0.0.1", port));
+		ReactorHttpClient<String, String> client =
+		  httpClient(spec -> spec.httpProcessor(CodecPreprocessor.string())
+		                         .connect("127.0.0.1", port));
 
 		client
 		  /* Start a request to Connect on '/' */

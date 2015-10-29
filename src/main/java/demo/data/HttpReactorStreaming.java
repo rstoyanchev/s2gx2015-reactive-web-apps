@@ -5,12 +5,11 @@ import org.slf4j.LoggerFactory;
 import reactor.Processors;
 import reactor.io.IO;
 import reactor.io.buffer.Buffer;
-import reactor.io.codec.StandardCodecs;
-import reactor.io.net.http.HttpClient;
-import reactor.io.net.http.HttpServer;
+import reactor.io.net.http.ReactorHttpClient;
+import reactor.io.net.http.ReactorHttpServer;
+import reactor.io.net.preprocessor.CodecPreprocessor;
 import reactor.rx.Stream;
 import reactor.rx.Streams;
-
 
 import static reactor.io.net.NetStreams.httpClient;
 import static reactor.io.net.NetStreams.httpServer;
@@ -34,7 +33,7 @@ public class HttpReactorStreaming {
 
 	public static void server(int port) {
 		/* Create HTTP server and Assign a Byte <=> String codec and the port */
-		HttpServer<Buffer, Buffer> server = httpServer(port);
+		ReactorHttpServer<Buffer, Buffer> server = httpServer(port);
 
 		Stream<Buffer> stream = Streams.wrap(
 		  /**/
@@ -68,8 +67,9 @@ public class HttpReactorStreaming {
 
 	public static void client(int port, int index) {
 		/* Create HTTP client and Assign a Byte <=> String codec, the address and the port */
-		HttpClient<String, String> client =
-		  httpClient(spec -> spec.codec(StandardCodecs.STRING_CODEC).connect("127.0.0.1", port));
+		ReactorHttpClient<String, String> client =
+		  httpClient(spec -> spec.httpProcessor(CodecPreprocessor.string())
+		                          .connect("127.0.0.1", port));
 
 		client
 		  /* Start a request to Connect on '/' */

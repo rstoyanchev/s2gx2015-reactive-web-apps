@@ -3,13 +3,10 @@ package demo.headfirst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.io.buffer.Buffer;
-import reactor.io.codec.StandardCodecs;
-import reactor.io.net.http.HttpClient;
-import reactor.io.net.http.HttpServer;
-import reactor.rx.Stream;
 import reactor.rx.Streams;
 
-import static reactor.io.net.NetStreams.*;
+import static reactor.io.net.NetStreams.httpClient;
+import static reactor.io.net.NetStreams.httpServer;
 
 public class HttpReactorHeadFirst {
 
